@@ -21,6 +21,8 @@ Route::apiResource('plans', PlanController::class);
 Route::apiResource('locations', LocationController::class);
 Route::apiResource('plan-features', PlanFeatureController::class);
 Route::apiResource('subscriptions', SubscriptionController::class);
+Route::get('/subscriptions/user/{userId}', [SubscriptionController::class, 'listByUserId']);
+
 
 
 Route::controller(SurveyController::class)->group(function () {
@@ -90,4 +92,4 @@ Route::controller(TodoController::class)->group(function () {
     Route::get('todo/{id}', 'show');
     Route::put('todo/{id}', 'update');
     Route::delete('todo/{id}', 'destroy');
-}); 
+});

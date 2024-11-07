@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\PlanFeature;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Exception;
 
 class PlanFeatureController extends Controller
 {
@@ -15,12 +18,24 @@ class PlanFeatureController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'plan_id' => 'required|exists:plans,id',
-            'feature' => 'required|string|max:255',
-        ]);
+        try {
+            $validatedData = Validator::make($request->all(), [
+                'plan_id' => 'required|exists:plans,id',
+                'feature' => 'required|string|max:255',
+            ]);
 
-        return PlanFeature::create($validatedData);
+            $planFeature = PlanFeature::create($validatedData->validate());
+
+            return response()->json(
+                $planFeature,
+                201
+            );
+        } catch (Exception $e) {
+            // Handle other exceptions
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 422);
+        }
     }
 
     public function show($id)

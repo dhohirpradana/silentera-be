@@ -18,7 +18,8 @@ class Subscription extends Model
         'package',
         'qty',
         'price',
-        'grand_price'
+        'grand_price',
+        'image_path'
     ];
 
     public function plan()

@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Exception;
 
 class PlanController extends Controller
 {
@@ -15,17 +18,34 @@ class PlanController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:50',
-            'price_weekly' => 'required|numeric',
-            'price_monthly' => 'required|numeric',
-            'price_annual' => 'nullable|numeric',
-            'qty' => 'nullable|numeric',
-            'description' => 'nullable|string',
-        ]);
+        try {
+            $validatedData = Validator::make($request->all(), [
+                'category_id' => 'required|exists:categories,id',
+                'name' => 'required|string|max:50',
+                'price_weekly' => 'required|numeric',
+                'price_monthly' => 'required|numeric',
+                'price_annual' => 'required|numeric',
+                'qty' => 'required|numeric',
+                'description' => 'required|string',
+            ]);
 
-        return Plan::create($validatedData);
+            if ($validatedData->fails()) {
+                throw new ValidationException($validatedData);
+            }
+
+            $plan = Plan::create($validatedData->validate());
+
+            return response()->json(
+                $plan,
+                201
+            );
+        } catch (Exception $e) {
+            // Handle other exceptions
+            return response()->json([
+                // 'message' => 'An error occurred while processing your request.',
+                'error' => $e->getMessage(),
+            ], 422);
+        }
     }
 
     public function show($id)

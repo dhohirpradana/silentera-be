@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Exception;
 
 class LocationController extends Controller
 {
@@ -15,14 +18,26 @@ class LocationController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'region' => 'required|string|max:100',
-            'province' => 'required|string|max:100',
-            'lon' => 'required|numeric',
-            'lat' => 'required|numeric',
-        ]);
+        try {
+            $validatedData = Validator::make($request->all(), [
+                'region' => 'required|string|max:100',
+                'province' => 'required|string|max:100',
+                'lon' => 'required|numeric',
+                'lat' => 'required|numeric',
+            ]);
 
-        return Location::create($validatedData);
+            if ($validatedData->fails()) {
+                throw new ValidationException($validatedData);
+            }
+
+            return Location::create($validatedData->validated());
+        } catch (Exception $e) {
+            // Handle other exceptions
+            return response()->json([
+                // 'message' => 'An error occurred while processing your request.',
+                'error' => $e->getMessage(),
+            ], 422);
+        }
     }
 
     public function show($id)

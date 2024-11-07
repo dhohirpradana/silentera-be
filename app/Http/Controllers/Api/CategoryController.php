@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Exception;
 
 class CategoryController extends Controller
 {
@@ -15,12 +18,28 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:50',
-            'description' => 'nullable|string',
-        ]);
+        try {
+            $validatedData = Validator::make($request->all(), [
+                'name' => 'required|string|max:50',
+                'description' => 'required|string|max:255',
+            ]);
 
-        return Category::create($validatedData);
+            if ($validatedData->fails()) {
+                throw new ValidationException($validatedData);
+            }
+
+            $category = Category::create($validatedData->validated());
+
+            return response()->json(
+                $category,
+                201
+            );
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 422);
+        }
     }
 
     public function show($id)
