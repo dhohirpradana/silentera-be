@@ -23,8 +23,6 @@ Route::apiResource('plan-features', PlanFeatureController::class);
 Route::apiResource('subscriptions', SubscriptionController::class);
 Route::get('/subscriptions/user/{userId}', [SubscriptionController::class, 'listByUserId']);
 
-
-
 Route::controller(SurveyController::class)->group(function () {
     Route::post('survey', 'store');
     Route::get('survey/csv', 'downloadcsv');

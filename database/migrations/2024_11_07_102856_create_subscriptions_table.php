@@ -15,10 +15,12 @@ class CreateSubscriptionsTable extends Migration
             $table->foreignId('location_id')->constrained()->onDelete('cascade');
             $table->date('start_date');
             $table->string('package', 255);
+            $table->string('image_path', 255);
             $table->integer('qty');
             $table->date('end_date')->nullable();
             $table->decimal('price', 65, 2);
             $table->decimal('grand_price', 65, 2);
+            $table->enum('status', ['PENDING', 'SUCCESS', 'FAILED']);
             $table->timestamps();
         });
     }
